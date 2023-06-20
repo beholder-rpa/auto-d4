@@ -17,3 +17,8 @@ pillow
 simpleaudio
 pynput
 colorama
+pywin32
+pytesseract
+pillow
+simpleaudio
+pynput
