@@ -1,0 +1,8 @@
+ Volume in drive C has no label.
+ Volume Serial Number is A29E-70AF
+
+ Directory of C:\src\auto-d4\venv\Scripts
+
+06/19/2023  08:32 PM           233,472 python.exe
+               1 File(s)        233,472 bytes
+               0 Dir(s)  652,426,964,992 bytes free
