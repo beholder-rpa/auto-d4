@@ -12,14 +12,11 @@ from time import sleep
 from datetime import datetime
 import re
 import random
-import argparse
 from pynput.keyboard import Key, Controller as KeyboardController
 from pynput.mouse import Button, Controller as MouseController
 from colorama import Style, Fore, init as colorama_init
 import concurrent.futures
-
-
-colorama_init()
+import easyocr
 
 alert = sa.WaveObject.from_wave_file(
     os.path.dirname(__file__) + "\\sounds\\fanfare.wav"
@@ -36,17 +33,21 @@ settings.target_fps = 6
 def auto_heal():
     keyboard.tap('q')
 
-def process_frame(frame):
+def process_frame(frame, target_fps):
     global settings
 
     if settings.debug:
         with Image.fromarray(frame) as img:
             img.save("./debug.jpg")
 
-def main():
+def main(args):
     global settings
+    global reader
 
+    colorama_init()
     settings.debug = args.debug
+
+    reader = easyocr.Reader(['en'], gpu=args.use_cuda) # there's also the detect_network argument?
 
     print(dxcam.device_info())
     print(dxcam.output_info())
@@ -58,10 +59,6 @@ def main():
     print(
         f"\t{Fore.LIGHTYELLOW_EX}Target FPS: {args.target_fps} ({60/args.target_fps/60:.2f} seconds per frame){Style.RESET_ALL}"
     )
-    if args.no_error_sound:
-        print(
-            f"\t{Fore.LIGHTGREEN_EX}Suppressing error sound when health is low{Style.RESET_ALL}"
-        )
     if args.debug:
         print(f"\t{Fore.LIGHTGREEN_EX}Debugging mode enabled{Style.RESET_ALL}")
     print(f"Press Ctrl+C to exit...")
@@ -71,9 +68,7 @@ def main():
             frame = camera.get_latest_frame()
             process_frame(
                 frame,
-                args.save_images,
                 target_fps=args.target_fps,
-                play_error_sound=not args.no_error_sound,
             )
         except KeyboardInterrupt:
             print("Exiting...")
@@ -86,6 +81,7 @@ def main():
             print(e)
             continue
 
-
 if __name__ == "__main__":
-    main()
+    from modules import cmd_args
+    args, _ = cmd_args.parser.parse_known_args()
+    main(args)

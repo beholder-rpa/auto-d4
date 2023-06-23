@@ -4,7 +4,6 @@ import os
 import sys
 import importlib.util
 import platform
-import json
 from functools import lru_cache
 
 from modules import cmd_args
@@ -39,11 +38,9 @@ This program is tested with 3.10.6 Python, but you have {major}.{minor}.{micro}.
 If you encounter an error with "RuntimeError: Couldn't install torch." message,
 or any other error regarding unsuccessful package (library) installation,
 please downgrade (or upgrade) to the latest version of 3.10 Python
-and delete current Python and "venv" folder in WebUI's directory.
+and delete current Python and "venv" folder in auto-d4's directory.
 
 You can download 3.10 Python from here: https://www.python.org/downloads/release/python-3106/
-
-{"Alternatively, use a binary release of WebUI: https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases" if is_windows else ""}
 
 Use --skip-python-version-check to suppress this warning.
 """)
@@ -115,8 +112,8 @@ def check_run_python(code: str) -> bool:
     return result.returncode == 0
 
 def prepare_environment():
-    torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu113")
-    torch_command = os.environ.get('TORCH_COMMAND', f"pip install torch torchvision --extra-index-url {torch_index_url}")
+    torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu118")
+    torch_command = os.environ.get('TORCH_COMMAND', f"pip install torch torchvision torchaudio --extra-index-url {torch_index_url}")
     requirements_file = os.environ.get('REQS_FILE', "requirements.txt")
 
     if not args.skip_python_version_check:
@@ -129,15 +126,8 @@ def prepare_environment():
     print(f"Version: {tag}")
     print(f"Commit hash: {commit}")
 
-    run_pip(f"install numpy Cython", "numpy and Cython")
-    run_pip(f"install lap", "lap")
-    run_pip(f"install install -e git+https://github.com/samson-wang/cython_bbox.git#egg=cython-bbox", "cython-bbox")
-
-    run_pip(f"install asone onnxruntime-gpu==1.12.1", "asone and onnxruntime-gpu")
-    run_pip(f"install super-gradients==3.1.1", "super-gradients")
-
-    if args.reinstall_torch or not is_installed("torch") or not is_installed("torchvision"):
-        run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
+    if args.reinstall_torch or not is_installed("torch") or not is_installed("torchvision") or not is_installed("torchaudio"):
+        run(f'"{python}" -m {torch_command}', "Installing torch", "Couldn't install torch", live=True)
 
     # if not args.skip_torch_cuda_test and not check_run_python("import torch; assert torch.cuda.is_available()"):
     #     raise RuntimeError(
@@ -152,5 +142,5 @@ def prepare_environment():
         exit(0)
 
 def start():
-    import autod4
-    print("ok")
+    from autod4 import main
+    main(args)
