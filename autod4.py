@@ -1,4 +1,4 @@
-from win32gui import GetWindowText, GetForegroundWindow
+#from win32gui import GetWindowText, GetForegroundWindow
 from threading import Thread, Lock
 from PIL import Image
 import dxcam
